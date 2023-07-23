@@ -1,4 +1,13 @@
 site_name: four1er's blog
 theme:
     name: simple-blog
+    components:
+        site_name: true
+        title: false
+        menu: true
+        preview: true
+        footer: false
+    colors:
+        title: black
+    title_style: underline
 
