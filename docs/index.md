@@ -1,4 +1,6 @@
-# Home
+title: Home
+
+# four1er's note
 
 June, 2023
 

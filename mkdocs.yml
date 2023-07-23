@@ -3,7 +3,7 @@ theme:
     name: simple-blog
     components:
         site_name: true
-        title: false
+        title: true
         menu: true
         preview: true
         footer: false

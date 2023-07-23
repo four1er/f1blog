@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-                <title>test - four1er's blog</title>
+                <title>Mysql索引 - four1er's blog</title>
 
             <meta charset="utf-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,16 +12,16 @@
             
 
             
-                <link  rel="icon" type="image/x-icon" href="../../assets/img/favicon.ico">
+                <link  rel="icon" type="image/x-icon" href="../../../assets/img/favicon.ico">
             
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
                         <script>hljs.initHighlightingOnLoad();</script>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-            <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
-            <link rel="stylesheet" href="../../assets/stylesheets/theme.css">
-            <link rel="stylesheet" href="../../assets/stylesheets/styles.css">
-                <script src="../../search/main.js"></script>
+            <link rel="stylesheet" href="../../../assets/css/bootstrap.min.css">
+            <link rel="stylesheet" href="../../../assets/stylesheets/theme.css">
+            <link rel="stylesheet" href="../../../assets/stylesheets/styles.css">
+                <script src="../../../search/main.js"></script>
 
             
                 
@@ -61,21 +61,21 @@
             <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="
-                            nav-link text-gray text-decoration-none" href="../..">[Home]</a>
+                            nav-link text-gray text-decoration-none" href="../../..">[Home]</a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class=" active 
+                            <a class="
                             nav-link dropdown-toggle text-decoration-none" href="#" data-bs-toggle="dropdown">[Algorithm]</a>
                             <ul class="dropdown-menu">
                                     <!-- block dropdown-menu -->
     <li>
-        <a href="./" class="dropdown-item text-decoration-none  active ">test</a>
+        <a href="../../../algorithm/test/" class="dropdown-item text-decoration-none ">test</a>
     </li>
 <!-- endblock -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="
+                            <a class=" active 
                             nav-link dropdown-toggle text-decoration-none" href="#" data-bs-toggle="dropdown">[Database]</a>
                             <ul class="dropdown-menu">
                                     <!-- block dropdown-menu -->
@@ -84,7 +84,7 @@
         <ul class="submenu dropdown-menu">
                 <!-- block dropdown-menu -->
     <li>
-        <a href="../../database/mysql/mysql%E7%9A%84%E7%B4%A2%E5%BC%95/" class="dropdown-item text-decoration-none ">Mysql索引</a>
+        <a href="./" class="dropdown-item text-decoration-none  active ">Mysql索引</a>
     </li>
 <!-- endblock -->
         </ul>
@@ -123,7 +123,7 @@
             <main><!-- block search -->
 <div class="collapse" id="collapseExample">
     <div role="search" class="search-box">
-        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
             <input type="text" name="q" class="search-query"
             placeholder="Search docs" title="Type search term here" />
         </form>
@@ -137,7 +137,31 @@
             
             
         </header>
-        <p><h1 id="test">test</h1></p>
+        <p><h1 id="_1">索引的常见模型</h1>
+<ul>
+<li>哈希表</li>
+<li>有序数组</li>
+<li>搜索树
+对于哈希表来说，等值查询的速度很快，而且插入数据也很方便，直接追加就可以。
+对于有序数组来说，在等值查询和范围查询的场景中性能都很优秀，但是在更新数据的时候，就很麻烦，所以有序数组索引只适用于静态存储引擎。
+搜索树，InnoDB 使用的是 B+树索引模型。</li>
+</ul>
+<p>主键索引的叶子节点存的是整行数据，在 InnoDB 里面，主键索引也被称为聚簇索引。
+非主键索引的叶子节点内容是主键的值，在 InnoDB 里面，非主键索引也被称为二级索引。</p>
+<p>根据上面的索引结构说明，我们来讨论一个问题：<strong>基于主键索引和普通索引的查询有什么区别？</strong></p>
+<ul>
+<li>如果语句是select * from T where ID=500，即主键查询方式，则只需要搜索ID这棵B+树；</li>
+<li>如果语句是select * from T where k=5，即普通索引查询方式，则需要先搜索k索引树，得到ID的值为500，再到ID索引树搜索一次。这个过程称为回表。</li>
+</ul>
+<p>也就是说，基于非主键索引的查询需要多扫描一棵索引树。因此，我们在应用中应该尽量使用主键查询。</p>
+<p>覆盖索引：当需要 select 的字段在索引树上时，就可以直接提供查询结果，不需要进行回表。也就是说，在这个查询里面，索引 k 已经“覆盖了”我们的查询需求，我们称为覆盖索引。</p>
+<p><strong>由于覆盖索引可以减少树的搜索次数，显著提升查询性能，所以使用覆盖索引是一个常用的性能优化手段。</strong></p>
+<h1 id="_2">最左前缀原则</h1>
+<p>对于一个联合索引来说，索引项是按照索引定义里面出现的字段顺序排序的。</p>
+<p>如果你要查的是所有名字第一个字是“张”的人，你的 SQL 语句的条件是"where name like ‘张 %’"。这时，你也能够用上这个索引，查找到第一个符合条件的记录是 ID3，然后向后遍历，直到不满足条件为止。</p>
+<p>可以看到，不只是索引的全部定义，只要满足最左前缀，就可以利用索引来加速检索。这个最左前缀可以是联合索引的最左 N 个字段，也可以是字符串索引的最左 M 个字符。</p>
+<h2 id="_3"><strong>建立联合索引的字段顺序</strong></h2>
+<p>这里我们的评估标准是，索引的复用能力。因为可以支持最左前缀，所以当已经有了 (a,b) 这个联合索引后，一般就不需要单独在 a 上建立索引了。因此，<strong>第一原则是，如果通过调整顺序，可以少维护一个索引，那么这个顺序往往就是需要优先考虑采用的。</strong></p></p>
     </article>
 </section>
 <!-- endblock -->
@@ -147,13 +171,13 @@
                     <!-- block preview -->
         <div class="row row-cols-md-3 text-center pt-md-3" id="component-preview">
             <div class="col themed-grid-col">
-                <a rel="prev" href="../.." class="nav-link">
+                <a rel="prev" href="../../../algorithm/test/" class="nav-link">
                     <i class="fa fa-arrow-left"></i> Previous
                 </a>
             </div>
             <div class="col themed-grid-col"></div>
             <div class="col themed-grid-col">
-                <a rel="next" href="../../database/mysql/mysql%E7%9A%84%E7%B4%A2%E5%BC%95/" class="nav-link">
+                <a rel="next" class="nav-link disabled">
                     Next <i class="fa fa-arrow-right"></i>
                 </a>
             </div>
@@ -165,11 +189,11 @@
             
         </div>
 
-            <script>var base_url = '../..';</script>
-            <script src="../../assets/js/jquery-3.3.1.slim.min.js""></script>
-            <script src="../../assets/js/bootstrap.bundle.min.js""></script>
-            <script src="../../assets/js/theme.js""></script>
-                <script src="../../search/main.js" defer></script>
+            <script>var base_url = '../../..';</script>
+            <script src="../../../assets/js/jquery-3.3.1.slim.min.js""></script>
+            <script src="../../../assets/js/bootstrap.bundle.min.js""></script>
+            <script src="../../../assets/js/theme.js""></script>
+                <script src="../../../search/main.js" defer></script>
 
     </body>
 
